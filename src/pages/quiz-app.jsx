@@ -142,7 +142,12 @@ export default function QuizApp() {
   };
 
   const handleAnswer = (answer) => {
-    const isCorrect = answer === questions[currentQuestionIndex].correctAnswer;
+    const currentQuestion = questions[currentQuestionIndex];
+    const isCorrect =
+      currentQuestion.type === "integer"
+        ? Number(answer) === Number(currentQuestion.correctAnswer)
+        : answer === currentQuestion.correctAnswer;
+
     const newAnswers = [...answers];
     newAnswers[currentQuestionIndex] = { answer, isCorrect };
     setAnswers(newAnswers);
@@ -170,19 +175,11 @@ export default function QuizApp() {
 
   const endQuiz = async () => {
     setShowScore(true);
-    const newAttempt = {
-      attemptNumber,
-      date: new Date().toLocaleString(),
-      score,
-      answers,
-      totalQuestions: questions.length,
-    };
     const db = await initDB();
     const tx = db.transaction("quizHistory", "readwrite");
     const store = tx.objectStore("quizHistory");
-    await store.add(newAttempt);
-    const allHistory = await store.getAll();
-    setQuizHistory(allHistory);
+    await store.add({ attemptNumber, score, totalQuestions: questions.length });
+    setAttemptNumber(attemptNumber + 1);
   };
 
   const restartQuiz = () => {
@@ -191,22 +188,15 @@ export default function QuizApp() {
     setShowScore(false);
     setTimeLeft(30);
     setAnswers(Array(questions.length).fill(null));
-    setShowFeedback(false);
-    setAttemptNumber((prev) => prev + 1);
   };
 
   return (
     <div className="min-h-screen bg-[#E5F6FF] p-6">
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-center text-2xl font-bold ">QUIZ APP</h1>
-
-        <a
-          href="/"
-          className="inline-flex items-center text-[#0891B2] mb-8 hover:text-[#0891B2]/80"
-        >
+        <h1 className="text-center text-2xl font-bold">QUIZ APP</h1>
+        <a href="/" className="inline-flex items-center text-[#0891B2] mb-8">
           <ArrowLeft className="mr-2 h-4 w-4" /> Homepage
         </a>
-
         <div className="bg-white rounded-[32px] p-8 md:p-12 shadow-sm flex flex-col md:flex-row gap-8">
           <div className="flex-1">
             {showScore ? (
