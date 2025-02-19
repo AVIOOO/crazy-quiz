@@ -47,4 +47,4 @@ The app should now be running at http://localhost:5173 (default Vite port).
 
 The quiz application is deployed on Netlify and can be accessed here:
 
-*Live Demo*: https://idyllic-crostata-cb311a.netlify.app/
+*Live Demo*: https://quizcrazy.netlify.app/
